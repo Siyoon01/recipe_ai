@@ -28,33 +28,39 @@ def process_results(results):
         return []
 
     result = results[0]
-    
+
+    # 매핑 테이블
+    CLASS_MAPPING = {
+        0: 438, 1: 20, 2: 8, 3: 7, 4: 209,
+        5: 17, 6: 28, 7: 29, 8: 5, 9: 802,
+        10: 2, 11: 4, 12: 5, 13: 51, 14: 26,
+        15: 6, 16: 49, 17: 5
+    }
+
     # 탐지된 객체 반복 처리
     for box in result.boxes:
-        # 1. Class ID [cite: 15]
-        cls_id = int(box.cls[0].item())
+        # 🔥 변경된 부분: YOLO class → 매핑된 classId
+        original_cls = int(box.cls[0].item())
+        cls_id = CLASS_MAPPING.get(original_cls, original_cls)
         
-        # 2. Label (이름) [cite: 16]
-        label_name = result.names[cls_id]
-        
-        # 3. BBox 좌표 (x1, y1, x2, y2) 
-        # 소수점 좌표를 정수형으로 변환 (필요 시 float 유지 가능)
+        # 레이블 이름은 기존 YOLO 이름 그대로
+        label_name = result.names[original_cls]
+
         x1, y1, x2, y2 = box.xyxy[0].tolist()
         bbox = [int(x1), int(y1), int(x2), int(y2)]
-        
-        # 4. Confidence (신뢰도) [cite: 18]
+
         conf = float(box.conf[0].item())
 
-        # 개별 객체 정보 딕셔너리 생성
         detection_info = {
             "classId": cls_id,
             "label": label_name,
             "bbox": bbox,
-            "confidence": round(conf, 2)  # 소수점 2자리 반올림
+            "confidence": round(conf, 2)
         }
         detections_list.append(detection_info)
 
     return detections_list
+
 
 # 이미지 바이트를 받아 객체 탐지 후 지정된 JSON 반환
 def detect_objects_from_bytes(image_bytes):
