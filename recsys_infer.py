@@ -19,7 +19,6 @@ def make_error_response(message: str, status_code: int = 500):
         "success": False,
         "message": message,
         "statusCode": status_code,
-        "resultCode": status_code,   # 필요하면 서버에서 사용
         "recommendations": None,
     }
 
@@ -77,7 +76,6 @@ def main():
             "success": True,
             "message": "최적 레시피가 성공적으로 추출되었습니다.",
             "statusCode": 200,
-            "resultCode": 200,
             "recommendations": recommendations,
         }
 
